@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
     auto ids = _ArgMax(probs, 0);
     auto result_ids = _Nms(boxes, scores, 100, 0.45, 0.25);
     auto result_ptr = result_ids->readMap<int>();
-    auto box_ptr = boxes->readMap<float>();
+    auto box_ptr = boxes->readMap<int>();
     auto ids_ptr = ids->readMap<float>();
     auto score_ptr = scores->readMap<float>();
     for (int i = 0; i < 100; i++) {
@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
         auto y1 = box_ptr[idx * 4 + 3] * scale;
         auto class_idx = ids_ptr[idx];
         auto score = score_ptr[idx];
-        printf("### box: {%f, %f, %f, %f}, class_idx: %d, score: %f\n", x0, y0, x1, y1, idx, score);
+        printf("### box: {%f, %f, %f, %f}, class_idx: %d, score: %f\n", x0, y0, x1, y1, class_idx, score);
         rectangle(original_image, {x0, y0}, {x1, y1}, {0, 0, 255}, 2);
     }
     if (imwrite("res.jpg", original_image)) {
