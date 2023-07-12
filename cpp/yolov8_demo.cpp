@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
     auto result_ids = _Nms(boxes, scores, 100, 0.45, 0.25);
     auto result_ptr = result_ids->readMap<int>();
     auto box_ptr = boxes->readMap<float>();
-    auto ids_ptr = ids->readMap<float>();
+    auto ids_ptr = ids->readMap<int>();
     auto score_ptr = scores->readMap<float>();
     for (int i = 0; i < 100; i++) {
         auto idx = result_ptr[i];
