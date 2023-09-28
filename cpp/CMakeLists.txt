@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(mobilenet_demo)
+project(yolov8_demo)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 

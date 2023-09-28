@@ -1,3 +1,6 @@
+
+![mnn-yolov8](resource/logo.png)
+
 # mnn-yolov8
 
 ## Model
@@ -11,5 +14,3 @@
 ## Demo
 - [Python](./python/)
 - [C++](./cpp)
-- Android: `TODO`
-- iOS: `TODO`
