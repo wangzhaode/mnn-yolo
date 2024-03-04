@@ -7,6 +7,8 @@
 
 |    model    |  download  |  original  | version |
 |-------------|:-----------|:-----------|:--------|
+| yolov5n | [4 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov5n.mnn) | onnx | 2.8.1 |
+| yolov5s | [14 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov5s.mnn) | onnx | 2.8.1 |
 | yolov6n | [9 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov6n.mnn) | onnx | 2.8.1 |
 | yolov6s | [36 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov6s.mnn) | onnx | 2.8.1 |
 | yolov7tiny | [12 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov7tiny.mnn) | onnx | 2.8.1 |
@@ -22,6 +24,7 @@
 - [C++](./cpp)
 
 ## Ref
+- [yolov5](https://github.com/ultralytics/yolov5)
 - [yolov6](https://github.com/meituan/YOLOv6)
 - [yolov7](https://github.com/WongKinYiu/yolov7)
 - [yolov8](https://github.com/ultralytics/ultralytics)
