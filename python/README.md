@@ -7,5 +7,5 @@ pip install MNN
 
 ## Run Demo
 ```
-python yolov8_demo.py --model yolov8n.mnn --img test.jpg
+python yolov8_demo.py --model yolov8n.mnn --img ../resource/test.jpg
 ```

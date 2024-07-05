@@ -45,5 +45,5 @@ powershell
 mkdir build && cd build
 cmake -G "Ninja" ..
 ninja
-./yolov8_demo yolov8n.mnn test.jpg
+./yolov8_demo yolov8n.mnn ../../resource/test.jpg
 ```
