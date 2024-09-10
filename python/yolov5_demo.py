@@ -25,8 +25,11 @@ def inference(model, img, precision, backend, thread):
     output_var = MNN.expr.convert(output_var, MNN.expr.NCHW)
     output_var = output_var.squeeze()
     # output shape: [25200, 85]; 85 means: [cx, cy, w, h, box_conf, prob * 80]
-    # get box_conf > 0.7 output
-    output_var = output_var[output_var[:, 4] > 0.7]
+    # get box_conf > 0.1 output
+    has_object = output_var[:, 4] > 0.1
+    idx = MNN.expr.where(has_object)
+    output_var = output_var[idx]
+    output_var = output_var.squeeze().transpose([1, 0])
     cx = output_var[0]
     cy = output_var[1]
     w = output_var[2]
