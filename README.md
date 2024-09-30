@@ -15,10 +15,15 @@
 | yolov7 | [71 MB](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov7.mnn) | onnx | 2.8.1 |
 | yolov8n | [12 MB](https://github.com/wangzhaode/mnn-yolov8/releases/download/v1.0/yolov8n.mnn) | onnx | 2.4.0 |
 | yolov8s | [43 MB](https://github.com/wangzhaode/mnn-yolov8/releases/download/v1.0/yolov8s.mnn) | onnx | 2.4.0 |
-| yolov9c | [98M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov9c.mnn) | onnx | 2.8.1 |
+| yolov9c | [98 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov9c.mnn) | onnx | 2.8.1 |
 | yolov9e | [133M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov9e.mnn) | onnx | 2.8.1 |
 | yolov10n | [4 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov10n.mnn) | onnx | 2.9.2 |
 | yolov10s | [14 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolov10s.mnn) | onnx | 2.9.2 |
+| yolo11n | [5 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolo11n.mnn) | onnx | 2.9.5 |
+| yolo11s | [18 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolo11s.mnn) | onnx | 2.9.5 |
+| yolo11m | [38 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolo11m.mnn) | onnx | 2.9.5 |
+| yolo11l | [48 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolo11l.mnn) | onnx | 2.9.5 |
+| yolo11x | [109 M](https://github.com/wangzhaode/mnn-yolo/releases/download/v1.0/yolo11x.mnn) | onnx | 2.9.5 |
 
 ## Demo
 - [Python](./python/)
@@ -31,3 +36,4 @@
 - [yolov8](https://github.com/ultralytics/ultralytics)
 - [yolov9](https://github.com/WongKinYiu/yolov9)
 - [yolov10](https://github.com/THU-MIG/yolov10)
+- [yolo11](https://github.com/ultralytics/ultralytics)
