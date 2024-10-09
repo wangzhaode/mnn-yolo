@@ -1,6 +1,6 @@
 import sys
 from ultralytics import YOLO
-from MNN.tools import mnnconvert
+from MNN.tools.mnnconvert import Tools
 
 model_path = sys.argv[1]
 
@@ -22,6 +22,4 @@ convert_args = [
             str(mnn_path),
             '--fp16'
         ]
-sys.argv = convert_args
-sys.argc = len(convert_args)
-mnnconvert.main()
+Tools.mnnconvert(convert_args)
