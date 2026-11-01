@@ -11,31 +11,38 @@ using namespace MNN;
 using namespace MNN::Express;
 using namespace MNN::CV;
 
+static const char* COCO_NAMES[] = {
+    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+    "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
+    "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
+    "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
+    "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
+    "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
+    "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
+    "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
+    "hair drier", "toothbrush"
+};
+
 int main(int argc, const char* argv[]) {
     if (argc < 3) {
-        MNN_PRINT("Usage: ./yolov5_demo.out model.mnn input.jpg [forwardType] [precision] [thread]\n");
+        MNN_PRINT("Usage: ./yolov5_demo model.mnn input.jpg [forwardType] [precision] [thread]\n");
         return 0;
     }
     int thread = 4;
     int precision = 0;
     int forwardType = MNN_FORWARD_CPU;
-    if (argc >= 4) {
-        forwardType = atoi(argv[3]);
-    }
-    if (argc >= 5) {
-        precision = atoi(argv[4]);
-    }
-    if (argc >= 6) {
-        thread = atoi(argv[5]);
-    }
+    if (argc >= 4) forwardType = atoi(argv[3]);
+    if (argc >= 5) precision = atoi(argv[4]);
+    if (argc >= 6) thread = atoi(argv[5]);
+
     MNN::ScheduleConfig sConfig;
     sConfig.type = static_cast<MNNForwardType>(forwardType);
     sConfig.numThread = thread;
     BackendConfig bConfig;
     bConfig.precision = static_cast<BackendConfig::PrecisionMode>(precision);
     sConfig.backendConfig = &bConfig;
-    std::shared_ptr<Executor::RuntimeManager> rtmgr = std::shared_ptr<Executor::RuntimeManager>(Executor::RuntimeManager::createRuntimeManager(sConfig));
-    if(rtmgr == nullptr) {
+    std::shared_ptr<Executor::RuntimeManager> rtmgr(Executor::RuntimeManager::createRuntimeManager(sConfig));
+    if (rtmgr == nullptr) {
         MNN_ERROR("Empty RuntimeManger\n");
         return 0;
     }
@@ -58,25 +65,20 @@ int main(int argc, const char* argv[]) {
     auto output = _Convert(outputs[0], NCHW);
     output = _Squeeze(output);
     // output shape: [25200, 85]; 85 means: [cx, cy, w, h, box_conf, prob * 80]
-    // get box_conf > 0.3 output
-    printf("dims = "); for (auto d : output->getInfo()->dim) printf("%d, ", d); printf("\n");
     auto box_conf = _GatherV2(output, _Scalar<int>(4), _Scalar<int>(1));
     auto has_object = _Greater(box_conf, _Scalar<float>(0.1));
     auto idx = Express::_Where(has_object);
     output = Express::_GatherND(output, idx);
-    printf("dims = "); for (auto d : output->getInfo()->dim) printf("%d, ", d); printf("\n");
-    output = _Transpose(output, {1, 0}); // to [85, 25200]
+    output = _Transpose(output, {1, 0}); // to [85, N]
     auto cx = _Gather(output, _Scalar<int>(0));
     auto cy = _Gather(output, _Scalar<int>(1));
     auto w = _Gather(output, _Scalar<int>(2));
     auto h = _Gather(output, _Scalar<int>(3));
-    auto _box_conf = _Gather(output, _Scalar<int>(4));
     std::vector<int> startvals { 5, 0 };
     auto start = _Const(static_cast<void*>(startvals.data()), {2}, NCHW, halide_type_of<int>());
     std::vector<int> sizevals { -1, -1 };
     auto size = _Const(static_cast<void*>(sizevals.data()), {2}, NCHW, halide_type_of<int>());
     auto probs = _Slice(output, start, size);
-    // [cx, cy, w, h] -> [y0, x0, y1, x1]
     auto x0 = cx - w * _Const(0.5);
     auto y0 = cy - h * _Const(0.5);
     auto x1 = cx + w * _Const(0.5);
@@ -87,7 +89,6 @@ int main(int argc, const char* argv[]) {
     auto result_ids = _Nms(boxes, scores, 100, 0.45, 0.25);
     auto result_ptr = result_ids->readMap<int>();
     auto box_ptr = boxes->readMap<float>();
-    auto box_conf_ptr = box_conf->readMap<float>();
     auto ids_ptr = ids->readMap<int>();
     auto score_ptr = scores->readMap<float>();
     for (int i = 0; i < 100; i++) {
@@ -99,7 +100,9 @@ int main(int argc, const char* argv[]) {
         auto y1 = box_ptr[idx * 4 + 3] * scale;
         auto class_idx = ids_ptr[idx];
         auto score = score_ptr[idx];
-        printf("### box: {%f, %f, %f, %f}, class_idx: %d, score: %f\n", x0, y0, x1, y1, class_idx, score);
+        char label[128];
+        snprintf(label, sizeof(label), "%s %.2f", COCO_NAMES[class_idx], score);
+        printf("### box: {%.1f, %.1f, %.1f, %.1f}, class: %s\n", x0, y0, x1, y1, label);
         rectangle(original_image, {x0, y0}, {x1, y1}, {0, 0, 255}, 2);
     }
     if (imwrite("res.jpg", original_image)) {

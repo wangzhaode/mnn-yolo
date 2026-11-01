@@ -19,8 +19,16 @@ function(add_yolo_demo_target TARGET_NAME)
   endif()
 endfunction()
 
-# yolov5 - yolov10
+# Detection demos
 foreach(DEMO_NUMBER RANGE 5 10)
   add_yolo_demo_target("yolov${DEMO_NUMBER}_demo")
 endforeach()
 add_yolo_demo_target("yolo11_demo")
+add_yolo_demo_target("yolo12_demo")
+add_yolo_demo_target("yolo13_demo")
+add_yolo_demo_target("yoloe_demo")
+
+# YOLO11 task variants
+add_yolo_demo_target("yolo11_seg_demo")
+add_yolo_demo_target("yolo11_pose_demo")
+add_yolo_demo_target("yolo11_obb_demo")

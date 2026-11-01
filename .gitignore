@@ -1,0 +1,61 @@
+# macOS
+.DS_Store
+
+# Model files (download from ModelScope instead of committing)
+*.pt
+*.onnx
+*.mnn
+*.torchscript
+*.engine
+*.tflite
+
+# MNN cache / convert temporary
+*.cachefile
+.cachefile
+__convert_external_data.bin
+.__convert_external_data.bin
+
+# Build output
+cpp/build/
+build/
+*.dylib
+*.so
+*.dll
+*.lib
+
+# Vendored MNN headers/libs (copy in locally, do not commit)
+cpp/include/MNN/
+cpp/include/cv/
+cpp/libs/
+
+# ultralytics by-products
+runs/
+datasets/
+*.log
+log
+metadata.yaml
+bus.jpg
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Demo output images
+res.jpg
+result.jpg
+*-result.jpg
+
+# ncnn / paddle export folders
+*_ncnn_model/
+*_paddle_model/
+
+# CI artifacts
+ci/models/
+ci/logs/

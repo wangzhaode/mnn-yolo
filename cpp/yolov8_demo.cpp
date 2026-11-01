@@ -11,36 +11,43 @@ using namespace MNN;
 using namespace MNN::Express;
 using namespace MNN::CV;
 
+static const char* COCO_NAMES[] = {
+    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+    "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
+    "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
+    "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
+    "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
+    "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
+    "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
+    "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
+    "hair drier", "toothbrush"
+};
+
 int main(int argc, const char* argv[]) {
     if (argc < 3) {
-        MNN_PRINT("Usage: ./yolov8_demo.out model.mnn input.jpg [forwardType] [precision] [thread]\n");
+        MNN_PRINT("Usage: ./yolov8_demo model.mnn input.jpg [forwardType] [precision] [thread]\n");
         return 0;
     }
     int thread = 4;
     int precision = 0;
     int forwardType = MNN_FORWARD_CPU;
-    if (argc >= 4) {
-        forwardType = atoi(argv[3]);
-    }
-    if (argc >= 5) {
-        precision = atoi(argv[4]);
-    }
-    if (argc >= 6) {
-        thread = atoi(argv[5]);
-    }
+    if (argc >= 4) forwardType = atoi(argv[3]);
+    if (argc >= 5) precision = atoi(argv[4]);
+    if (argc >= 6) thread = atoi(argv[5]);
+
     MNN::ScheduleConfig sConfig;
     sConfig.type = static_cast<MNNForwardType>(forwardType);
     sConfig.numThread = thread;
     BackendConfig bConfig;
     bConfig.precision = static_cast<BackendConfig::PrecisionMode>(precision);
     sConfig.backendConfig = &bConfig;
-    std::shared_ptr<Executor::RuntimeManager> rtmgr = std::shared_ptr<Executor::RuntimeManager>(Executor::RuntimeManager::createRuntimeManager(sConfig));
-    if(rtmgr == nullptr) {
+    std::shared_ptr<Executor::RuntimeManager> rtmgr(Executor::RuntimeManager::createRuntimeManager(sConfig));
+    if (rtmgr == nullptr) {
         MNN_ERROR("Empty RuntimeManger\n");
         return 0;
     }
     rtmgr->setCache(".cachefile");
-    
+
     std::shared_ptr<Module> net(Module::load(std::vector<std::string>{}, std::vector<std::string>{}, argv[1], rtmgr));
     auto original_image = imread(argv[2]);
     auto dims = original_image->getInfo()->dim;
@@ -67,7 +74,6 @@ int main(int argc, const char* argv[]) {
     std::vector<int> sizevals { -1, -1 };
     auto size = _Const(static_cast<void*>(sizevals.data()), {2}, NCHW, halide_type_of<int>());
     auto probs = _Slice(output, start, size);
-    // [cx, cy, w, h] -> [y0, x0, y1, x1]
     auto x0 = cx - w * _Const(0.5);
     auto y0 = cy - h * _Const(0.5);
     auto x1 = cx + w * _Const(0.5);
@@ -89,7 +95,9 @@ int main(int argc, const char* argv[]) {
         auto y1 = box_ptr[idx * 4 + 3] * scale;
         auto class_idx = ids_ptr[idx];
         auto score = score_ptr[idx];
-        printf("### box: {%f, %f, %f, %f}, class_idx: %d, score: %f\n", x0, y0, x1, y1, class_idx, score);
+        char label[128];
+        snprintf(label, sizeof(label), "%s %.2f", COCO_NAMES[class_idx], score);
+        printf("### box: {%.1f, %.1f, %.1f, %.1f}, class: %s\n", x0, y0, x1, y1, label);
         rectangle(original_image, {x0, y0}, {x1, y1}, {0, 0, 255}, 2);
     }
     if (imwrite("res.jpg", original_image)) {

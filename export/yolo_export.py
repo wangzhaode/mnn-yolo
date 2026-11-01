@@ -1,6 +1,6 @@
 import sys
 from ultralytics import YOLO
-from MNN.tools.mnnconvert import Tools
+from MNN.tools.mnnconvert import convert
 
 model_path = sys.argv[1]
 
@@ -20,6 +20,8 @@ convert_args = [
             str(onnx_path),
             '--MNNModel',
             str(mnn_path),
-            '--fp16'
+            '--fp16',
+            '--bizCode',
+            'ABCDEFG'
         ]
-Tools.mnnconvert(convert_args)
+convert(convert_args)

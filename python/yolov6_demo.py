@@ -5,13 +5,21 @@ import MNN
 import MNN.numpy as np
 import MNN.cv as cv2
 
+COCO_NAMES = [
+    'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
+    'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
+    'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard',
+    'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+    'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+    'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+    'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear',
+    'hair drier', 'toothbrush'
+]
+
 def inference(model, img, precision, backend, thread):
-    config = {}
-    config['precision'] = precision
-    config['backend'] = backend
-    config['numThread'] = thread
+    config = {'precision': precision, 'backend': backend, 'numThread': thread}
     rt = MNN.nn.create_runtime_manager((config,))
-    # net = MNN.nn.load_module_from_file(model, ['images'], ['output0'], runtime_manager=rt)
     net = MNN.nn.load_module_from_file(model, [], [], runtime_manager=rt)
     original_image = cv2.imread(img)
     ih, iw, _ = original_image.shape
@@ -26,19 +34,17 @@ def inference(model, img, precision, backend, thread):
     box_num = num_dets.read_as_tuple()[0]
     for i in range(box_num):
         x0, y0, x1, y1 = det_boxes[0, i].read_as_tuple()
-        y0 = int(y0 * scale)
-        y1 = int(y1 * scale)
-        x0 = int(x0 * scale)
-        x1 = int(x1 * scale)
-        class_idx = det_classes.read_as_tuple()[i]
-        score = det_scores.read_as_tuple()[i]
-        print(f"### class_idx: {class_idx}, score: {score}")
+        x0, y0, x1, y1 = int(x0 * scale), int(y0 * scale), int(x1 * scale), int(y1 * scale)
+        class_idx = int(det_classes.read_as_tuple()[i])
+        score = float(det_scores.read_as_tuple()[i])
+        label = f'{COCO_NAMES[class_idx]} {score:.2f}'
+        print(f'### box: [{x0}, {y0}, {x1}, {y1}], class: {label}')
         cv2.rectangle(original_image, (x0, y0), (x1, y1), (0, 0, 255), 2)
     cv2.imwrite('res.jpg', original_image)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, required=True, help='the mobilenet model path')
+    parser.add_argument('--model', type=str, required=True, help='the yolov6 mnn model path')
     parser.add_argument('--img', type=str, required=True, help='the input image path')
     parser.add_argument('--precision', type=str, default='normal', help='inference precision: normal, low, high, lowBF')
     parser.add_argument('--backend', type=str, default='CPU', help='inference backend: CPU, OPENCL, OPENGL, NN, VULKAN, METAL, TRT, CUDA, HIAI')
